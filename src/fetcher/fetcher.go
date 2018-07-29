@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"base"
+	"path"
 )
 
 type BankInfo struct {
@@ -13,17 +14,21 @@ type BankInfo struct {
 	FileName string
 }
 
-var BigSmallBank = &BankInfo{"https://ebank.cgbchina.com.cn/corporbank/superEbankNoDownload.jsp?pms=true", "BigSmallBank.txt"}
-var SuperBank = &BankInfo{"https://ebank.cgbchina.com.cn/corporbank/superEbankNoDownload.jsp", "SuperBank.txt"}
+var BigSmallBank = &BankInfo{"https://ebank.cgbchina.com.cn/corporbank/superEbankNoDownload.jsp?pms=true", "result/BigSmallBank.txt"}
+var SuperBank = &BankInfo{"https://ebank.cgbchina.com.cn/corporbank/superEbankNoDownload.jsp", "result/SuperBank.txt"}
 
 func Download(bankInfo *BankInfo) {
 	resp, err := http.Get(bankInfo.Url)
-	if nil != err || 200 != resp.StatusCode {
-		panic(err)
-
+	if nil != err{
+		base.CheckErr(err)
+	}
+	if resp.StatusCode != 200 {
+		base.CheckErr(fmt.Errorf("response status is: %d", resp.StatusCode))
 	}
 
 	data := make([]byte, 1024)
+	err = os.MkdirAll(path.Dir(bankInfo.FileName), os.ModePerm)
+	base.CheckErr(err)
 	file , err := os.Create(bankInfo.FileName)
 	base.CheckErr(err)
 	defer file.Close()
