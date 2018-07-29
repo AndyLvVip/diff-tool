@@ -4,7 +4,6 @@ import (
 	"model"
 	"database/sql"
 	"base"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func BatchInsert4BigSmallBank(bigSmallBanks []*model.BigSmallBankModel, db *sql.DB) {

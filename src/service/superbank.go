@@ -17,6 +17,7 @@ import (
 	"golang.org/x/text/transform"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"sync"
+	"conf"
 )
 
 func Process4SuperBank(now time.Time, wg *sync.WaitGroup) {
@@ -31,7 +32,7 @@ func Process4SuperBank(now time.Time, wg *sync.WaitGroup) {
 }
 
 func LoadSuperBank(reader *bufio.Reader) {
-	db, err := sql.Open("mysql", "andy:password@/ucacc_dev")
+	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
 	base.CheckErr(err)
 	defer db.Close()
 
@@ -73,7 +74,7 @@ func LoadSuperBank(reader *bufio.Reader) {
 }
 
 func QueryAndGenerate4SuperBank(now time.Time) {
-	db, err := sql.Open("mysql", "andy:password@/ucacc_dev")
+	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
 	base.CheckErr(err)
 	defer db.Close()
 	added := dao.FetchAddedSuperBank(db)

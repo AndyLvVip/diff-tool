@@ -3,7 +3,6 @@ package dao
 import (
 	"base"
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"model"
 )
 

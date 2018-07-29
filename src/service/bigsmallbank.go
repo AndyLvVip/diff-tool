@@ -17,6 +17,7 @@ import (
 	"golang.org/x/text/transform"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"sync"
+	"conf"
 )
 
 func ProcessBigSmallBank(now time.Time, wg *sync.WaitGroup) {
@@ -33,7 +34,7 @@ func ProcessBigSmallBank(now time.Time, wg *sync.WaitGroup) {
 }
 
 func LoadBigSmallBank(reader *bufio.Reader) {
-	db, err := sql.Open("mysql", "andy:password@/ucacc_dev")
+	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
 	base.CheckErr(err)
 	defer db.Close()
 
@@ -77,7 +78,7 @@ func LoadBigSmallBank(reader *bufio.Reader) {
 
 
 func QueryAndGenerate4BigSmallBank(now time.Time) {
-	db, err := sql.Open("mysql", "andy:password@/ucacc_dev")
+	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
 	base.CheckErr(err)
 	defer db.Close()
 	added := dao.FetchAddedBigSmallBank(db)
