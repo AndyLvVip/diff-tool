@@ -27,6 +27,6 @@ func Format2yyyyMMddHHmmss(datetime time.Time) string {
 	return datetime.Format("20060102150405")
 }
 
-func Format2yyyy_MM_dd(datetime time.Time) string {
-	return datetime.Format("2006-01-02")
+func Format2yyyy_MM_dd(now time.Time) string {
+	return now.Format("2006-01-02")
 }

@@ -22,9 +22,9 @@ import (
 
 func ProcessBigSmallBank(now time.Time, wg *sync.WaitGroup) {
 	defer wg.Done()
-	fetcher.Download(fetcher.BigSmallBank)
+	fetcher.Download(now, fetcher.BigSmallBank)
 
-	file, err := os.Open(fetcher.BigSmallBank.FileName)
+	file, err := os.Open(fetcher.BigSmallBank.FilePathAndName(now))
 	defer file.Close()
 	base.CheckErr(err)
 	reader := bufio.NewReader(transform.NewReader(file, simplifiedchinese.GBK.NewDecoder()))

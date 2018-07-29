@@ -22,8 +22,8 @@ import (
 
 func Process4SuperBank(now time.Time, wg *sync.WaitGroup) {
 	defer wg.Done()
-	fetcher.Download(fetcher.SuperBank)
-	file, err := os.Open(fetcher.SuperBank.FileName)
+	fetcher.Download(now, fetcher.SuperBank)
+	file, err := os.Open(fetcher.SuperBank.FilePathAndName(now))
 	defer file.Close()
 	base.CheckErr(err)
 	reader := bufio.NewReader(transform.NewReader(file, simplifiedchinese.GBK.NewDecoder()))
