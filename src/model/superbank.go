@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 	"time"
+	"log"
 )
 
 
@@ -35,7 +36,7 @@ func PayeeCheckSql4SuperBank(now time.Time, updated []*SuperBankModel, deleted [
 
 		writeCheckSql4SuperBank(file, deleted)
 	}
-	fmt.Println("generated " + filePathAndName)
+	log.Println("generated " + filePathAndName)
 }
 
 func writeCheckSql4SuperBank(file *os.File, vals []*SuperBankModel) {

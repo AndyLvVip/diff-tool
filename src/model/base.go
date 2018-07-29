@@ -7,9 +7,9 @@ import (
 	"database/sql"
 )
 
-func ToBigSmallBank(line string) *model.BigSmallBankModel {
+func ToBigSmallBank(line string) *BigSmallBankModel {
 	bankNo := GetBankNo(line)
-	return &model.BigSmallBankModel{
+	return &BigSmallBankModel{
 		BankNo:    ToNullString(bankNo),
 		BankIndex: ToNullString(GetBankIndex(bankNo)),
 		BankCode:  ToNullString(GetBankCode(bankNo)),
@@ -19,10 +19,10 @@ func ToBigSmallBank(line string) *model.BigSmallBankModel {
 	}
 }
 
-func ToSuperBank(line string) *model.SuperBankModel {
+func ToSuperBank(line string) *SuperBankModel {
 	bankNo := GetBankNo(line)
 	bankName := GetBankName(line, bankNo)
-	return &model.SuperBankModel{
+	return &SuperBankModel{
 		BankNo:       ToNullString(bankNo),
 		BankName:     ToNullString(bankName),
 		BankCode:     ToNullString(GetBankCode(bankNo)),

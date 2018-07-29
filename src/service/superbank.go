@@ -3,7 +3,6 @@ package service
 import (
 	"base"
 	"bufio"
-	"conv"
 	"dao"
 	"database/sql"
 	"fmt"
@@ -13,6 +12,7 @@ import (
 	"path"
 	"strings"
 	"time"
+	"log"
 )
 
 func LoadSuperBank(reader *bufio.Reader) {
@@ -39,7 +39,7 @@ func LoadSuperBank(reader *bufio.Reader) {
 					cur++
 				}
 				if len(sbSlices) > 0 {
-					fmt.Printf("inserting super banks from %d to %d\n", last, cur)
+					log.Printf("inserting super banks from %d to %d\n", last, cur)
 					dao.BatchInsert4SuperBank(sbSlices, db)
 				}
 				break
@@ -49,7 +49,7 @@ func LoadSuperBank(reader *bufio.Reader) {
 		sbSlices = append(sbSlices, model.ToSuperBank(strings.TrimSpace(line)))
 		cur++
 		if len(sbSlices) == 10000 {
-			fmt.Printf("inserting super banks from %d to %d\n", last, cur)
+			log.Printf("inserting super banks from %d to %d\n", last, cur)
 			dao.BatchInsert4SuperBank(sbSlices, db)
 			last = cur
 			sbSlices = sbSlices[:0]
@@ -104,5 +104,5 @@ func GenerateDiffFileSql4SuperBank(now time.Time, added []*model.SuperBankModel,
 			file.WriteString(sb.DeletedSqlScript() + "\n")
 		}
 	}
-	fmt.Println("generated " + filePathAndName)
+	log.Println("generated " + filePathAndName)
 }

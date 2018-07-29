@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"log"
 )
 
 type BigSmallBankModel struct {
@@ -73,7 +74,7 @@ func PayeeCheckSql4BigSmallBank(now time.Time, updated []*BigSmallBankModel, del
 
 		writeCheckSql4BigSmallBank(file, deleted)
 	}
-	fmt.Println("generated " + filePathAndName)
+	log.Println("generated " + filePathAndName)
 }
 
 

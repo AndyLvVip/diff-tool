@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"log"
 )
 
 type BankInfo struct {
@@ -18,6 +19,7 @@ var BigSmallBank = &BankInfo{"https://ebank.cgbchina.com.cn/corporbank/superEban
 var SuperBank = &BankInfo{"https://ebank.cgbchina.com.cn/corporbank/superEbankNoDownload.jsp", "result/SuperBank.txt"}
 
 func Download(bankInfo *BankInfo) {
+	log.Printf("downloading the file: %s\n", bankInfo.FileName)
 	resp, err := http.Get(bankInfo.Url)
 	if nil != err {
 		base.CheckErr(err)
@@ -47,5 +49,5 @@ func Download(bankInfo *BankInfo) {
 		file.Write(data[:n])
 	}
 	resp.Body.Close()
-	fmt.Printf("downloaded the file: %s\n", bankInfo.FileName)
+	log.Printf("downloaded the file: %s\n", bankInfo.FileName)
 }

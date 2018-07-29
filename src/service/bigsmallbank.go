@@ -12,6 +12,7 @@ import (
 	"time"
 	"os"
 	"path"
+	"log"
 )
 
 func LoadBigSmallBank(reader *bufio.Reader) {
@@ -38,7 +39,7 @@ func LoadBigSmallBank(reader *bufio.Reader) {
 					cur++
 				}
 				if len(bsbSlices) > 0 {
-					fmt.Printf("inserting big small banks from %d to %d\n", last, cur)
+					log.Printf("inserting big small banks from %d to %d\n", last, cur)
 					dao.BatchInsert4BigSmallBank(bsbSlices, db)
 				}
 				break
@@ -48,7 +49,7 @@ func LoadBigSmallBank(reader *bufio.Reader) {
 		bsbSlices = append(bsbSlices, model.ToBigSmallBank(strings.TrimSpace(line)))
 		cur++
 		if len(bsbSlices) == 10000 {
-			fmt.Printf("inserting big small banks from %d to %d\n", last, cur)
+			log.Printf("inserting big small banks from %d to %d\n", last, cur)
 			dao.BatchInsert4BigSmallBank(bsbSlices, db)
 			last = cur
 			bsbSlices = bsbSlices[:0]
@@ -107,5 +108,5 @@ func GenerateDiffFileSql4BigSmallBank(now time.Time, added []*model.BigSmallBank
 			file.WriteString(bsd.DeletedSqlScript() + "\n")
 		}
 	}
-	fmt.Println("generated " + filePathAndName)
+	log.Println("generated " + filePathAndName)
 }
