@@ -1,11 +1,10 @@
-package conv
+package model
 
 import (
+	"strings"
+	"regexp"
 	"base"
 	"database/sql"
-	"model"
-	"regexp"
-	"strings"
 )
 
 func ToBigSmallBank(line string) *model.BigSmallBankModel {
