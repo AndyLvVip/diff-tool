@@ -1,50 +1,48 @@
 package model
 
 import (
+	"base"
 	"database/sql"
 	"fmt"
-	"base"
-	"time"
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 type BigSmallBankModel struct {
-	Id int64
-	BankNo sql.NullString
-	BankName sql.NullString
-	BankCode sql.NullString
-	AreaCode sql.NullString
+	Id        int64
+	BankNo    sql.NullString
+	BankName  sql.NullString
+	BankCode  sql.NullString
+	AreaCode  sql.NullString
 	BankIndex sql.NullString
-	CheckBit sql.NullString
+	CheckBit  sql.NullString
 }
 
-
 func (bsb *BigSmallBankModel) AddedSqlScript() string {
-	return  fmt.Sprintf("insert into base_branchbank (bankNo, bankName, bankCode, areaCode, bankIndex, checkBit) values (%s, %s, %s, %s, %s, %s);",
+	return fmt.Sprintf("insert into base_branchbank (bankNo, bankName, bankCode, areaCode, bankIndex, checkBit) values (%s, %s, %s, %s, %s, %s);",
 		base.SqlValue(bsb.BankNo),
-			base.SqlValue(bsb.BankName),
-				base.SqlValue(bsb.BankCode),
-					base.SqlValue(bsb.AreaCode),
-						base.SqlValue(bsb.BankIndex),
-							base.SqlValue(bsb.CheckBit),
-		)
+		base.SqlValue(bsb.BankName),
+		base.SqlValue(bsb.BankCode),
+		base.SqlValue(bsb.AreaCode),
+		base.SqlValue(bsb.BankIndex),
+		base.SqlValue(bsb.CheckBit),
+	)
 }
 
 func (bsb *BigSmallBankModel) UpdatedSqlScript() string {
 	return fmt.Sprintf("update base_branchbank set bankName = %s where bankNo = %s;",
 		base.SqlValue(bsb.BankName),
-			base.SqlValue(bsb.BankNo),
-		)
+		base.SqlValue(bsb.BankNo),
+	)
 }
 
 func (bsb *BigSmallBankModel) DeletedSqlScript() string {
 	return fmt.Sprintf("delete from base_branchbank where bankNo = %s;",
 		base.SqlValue(bsb.BankNo),
-		)
+	)
 }
-
 
 func PayeeCheckSql4BigSmallBank(now time.Time, updated []*BigSmallBankModel, deleted []*BigSmallBankModel) {
 	filePathAndName := fmt.Sprintf("result/%s/check/fin_payee_big_small_%s.sql", base.Format2yyyy_MM_dd(now), base.Format2yyyyMMddHHmmss(now))
@@ -101,7 +99,6 @@ func writeCheckSql4BigSmallBank(file *os.File, vals []*BigSmallBankModel) {
 	file.WriteString(sql + "\n")
 }
 
-
 func PayeeCheckSql4SuperBank(now time.Time, updated []*SuperBankModel, deleted []*SuperBankModel) {
 	filePathAndName := fmt.Sprintf("result/%s/check/fin_payee_super_%s.sql", base.Format2yyyy_MM_dd(now), base.Format2yyyyMMddHHmmss(now))
 	err := os.MkdirAll(path.Dir(filePathAndName), os.ModePerm)
@@ -129,7 +126,6 @@ func PayeeCheckSql4SuperBank(now time.Time, updated []*SuperBankModel, deleted [
 	fmt.Println("generated " + filePathAndName)
 }
 
-
 func writeCheckSql4SuperBank(file *os.File, vals []*SuperBankModel) {
 	var args []string
 	for _, bsb := range vals {
@@ -152,21 +148,19 @@ func writeCheckSql4SuperBank(file *os.File, vals []*SuperBankModel) {
 	file.WriteString(sql + "\n")
 }
 
-
 type SuperBankModel struct {
-	Id int64
-	BankNo sql.NullString
-	BankName sql.NullString
-	BankCode sql.NullString
-	AreaCode sql.NullString
-	BankIndex sql.NullString
-	CheckBit sql.NullString
+	Id           int64
+	BankNo       sql.NullString
+	BankName     sql.NullString
+	BankCode     sql.NullString
+	AreaCode     sql.NullString
+	BankIndex    sql.NullString
+	CheckBit     sql.NullString
 	BankNickname sql.NullString
 }
 
-
 func (sb *SuperBankModel) AddedSqlScript() string {
-	return  fmt.Sprintf("insert into base_supercyberbank (bankNo, bankName, bankCode, areaCode, bankIndex, checkBit, bankNickname) values (%s, %s, %s, %s, %s, %s, %s);",
+	return fmt.Sprintf("insert into base_supercyberbank (bankNo, bankName, bankCode, areaCode, bankIndex, checkBit, bankNickname) values (%s, %s, %s, %s, %s, %s, %s);",
 		base.SqlValue(sb.BankNo),
 		base.SqlValue(sb.BankName),
 		base.SqlValue(sb.BankCode),

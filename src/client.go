@@ -1,12 +1,12 @@
 package main
 
 import (
-	"os"
 	"base"
 	"bufio"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"fetcher"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
+	"os"
 	"service"
 	"time"
 )

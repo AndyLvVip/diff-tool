@@ -1,10 +1,10 @@
 package dao
 
 import (
-	"model"
+	"base"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"base"
+	"model"
 )
 
 func BatchInsert4BigSmallBank(bigSmallBanks []*model.BigSmallBankModel, db *sql.DB) {
@@ -27,9 +27,8 @@ func buildSqlAndVals4BigSmallBank(bigSmallBanks []*model.BigSmallBankModel) (str
 		sqlValue = append(sqlValue, bigSmallBanks[i].BankNo, bigSmallBanks[i].BankName, bigSmallBanks[i].BankCode, bigSmallBanks[i].AreaCode, bigSmallBanks[i].BankIndex, bigSmallBanks[i].CheckBit)
 	}
 	sql += sqlVar
-	return sql[: len(sql) - 2], sqlValue
+	return sql[:len(sql)-2], sqlValue
 }
-
 
 func BatchInsert4SuperBank(superBanks []*model.SuperBankModel, db *sql.DB) {
 	sql, values := buildSqlAndVals4SuperBank(superBanks)
@@ -42,7 +41,6 @@ func BatchInsert4SuperBank(superBanks []*model.SuperBankModel, db *sql.DB) {
 	base.CheckErr(err)
 }
 
-
 func buildSqlAndVals4SuperBank(superBanks []*model.SuperBankModel) (string, []interface{}) {
 	sql := "insert into tmp_supercyberbank (bankNo, bankName, bankCode, areaCode, bankIndex, checkBit, bankNickname) values "
 	sqlVar := ""
@@ -52,7 +50,7 @@ func buildSqlAndVals4SuperBank(superBanks []*model.SuperBankModel) (string, []in
 		sqlValue = append(sqlValue, superBanks[i].BankNo, superBanks[i].BankName, superBanks[i].BankCode, superBanks[i].AreaCode, superBanks[i].BankIndex, superBanks[i].CheckBit, superBanks[i].BankNickname)
 	}
 	sql += sqlVar
-	return sql[: len(sql) - 2], sqlValue
+	return sql[:len(sql)-2], sqlValue
 }
 
 func TruncateBigSmallBank(db *sql.DB) {
@@ -65,7 +63,7 @@ func TruncateSuperBank(db *sql.DB) {
 	base.CheckErr(err)
 }
 
-func FetchAddedBigSmallBank(db *sql.DB) [] *model.BigSmallBankModel{
+func FetchAddedBigSmallBank(db *sql.DB) []*model.BigSmallBankModel {
 	rows, err := db.Query("select new.bankNo, new.bankName, new.bankCode, new.areaCode, new.bankIndex, new.checkBit from tmp_branchbank new left join base_branchbank old on new.bankNo = old.bankNo where old.bankNo is null")
 	base.CheckErr(err)
 	var bsbSlices []*model.BigSmallBankModel
@@ -104,8 +102,7 @@ func FetchDeletedBigSmallBank(db *sql.DB) []*model.BigSmallBankModel {
 	return bsbSlices
 }
 
-
-func FetchAddedSuperBank(db *sql.DB) [] *model.SuperBankModel{
+func FetchAddedSuperBank(db *sql.DB) []*model.SuperBankModel {
 	rows, err := db.Query("select new.bankNo, new.bankName, new.bankCode, new.areaCode, new.bankIndex, new.checkBit, new.bankNickname from tmp_supercyberbank new left join base_supercyberbank old on new.bankNo = old.bankNo where old.bankNo is null")
 	base.CheckErr(err)
 	var bsbSlices []*model.SuperBankModel

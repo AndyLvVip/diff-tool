@@ -1,18 +1,18 @@
 package service
 
 import (
-	"bufio"
-	"database/sql"
 	"base"
-	"dao"
-	"io"
-	"strings"
-	"model"
+	"bufio"
 	"conv"
+	"dao"
+	"database/sql"
 	"fmt"
+	"io"
+	"model"
 	"os"
-	"time"
 	"path"
+	"strings"
+	"time"
 )
 
 func LoadBigSmallBank(reader *bufio.Reader) {
@@ -20,7 +20,7 @@ func LoadBigSmallBank(reader *bufio.Reader) {
 	base.CheckErr(err)
 	defer db.Close()
 
-	_, err = reader.ReadString('\n')//discard the first line
+	_, err = reader.ReadString('\n') //discard the first line
 	base.CheckErr(err)
 
 	dao.TruncateBigSmallBank(db)
@@ -33,7 +33,7 @@ func LoadBigSmallBank(reader *bufio.Reader) {
 		if nil != err {
 			if io.EOF != err {
 				base.CheckErr(err)
-			}else {
+			} else {
 				if len(line) > 0 {
 					bsbSlices = append(bsbSlices, conv.ToBigSmallBank(strings.TrimSpace(line)))
 					cur++
@@ -62,7 +62,7 @@ func LoadSuperBank(reader *bufio.Reader) {
 	base.CheckErr(err)
 	defer db.Close()
 
-	_, err = reader.ReadString('\n')//discard the first line
+	_, err = reader.ReadString('\n') //discard the first line
 	base.CheckErr(err)
 
 	dao.TruncateSuperBank(db)
@@ -75,7 +75,7 @@ func LoadSuperBank(reader *bufio.Reader) {
 		if nil != err {
 			if io.EOF != err {
 				base.CheckErr(err)
-			}else {
+			} else {
 				if len(line) > 0 {
 					sbSlices = append(sbSlices, conv.ToSuperBank(strings.TrimSpace(line)))
 					cur++
@@ -161,7 +161,6 @@ func QueryAndGenerate4SuperBank(now time.Time) {
 
 	model.PayeeCheckSql4SuperBank(now, updated, deleted)
 }
-
 
 func GenerateDiffFileSql4SuperBank(now time.Time, added []*model.SuperBankModel, updated []*model.SuperBankModel, deleted []*model.SuperBankModel) {
 	filePathAndName := fmt.Sprintf("result/%s/patch/super_%s.sql", base.Format2yyyy_MM_dd(now), base.Format2yyyyMMddHHmmss(now))

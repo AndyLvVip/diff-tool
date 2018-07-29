@@ -1,22 +1,22 @@
 package conv
 
 import (
-	"model"
-	"regexp"
 	"base"
 	"database/sql"
+	"model"
+	"regexp"
 	"strings"
 )
 
-func ToBigSmallBank(line string) *model.BigSmallBankModel{
+func ToBigSmallBank(line string) *model.BigSmallBankModel {
 	bankNo := GetBankNo(line)
 	return &model.BigSmallBankModel{
-		BankNo:ToNullString(bankNo),
-		BankIndex:ToNullString(GetBankIndex(bankNo)),
-		BankCode:ToNullString(GetBankCode(bankNo)),
-		BankName:ToNullString(GetBankName(line, bankNo)),
-		AreaCode:ToNullString(GetAreaCode(bankNo)),
-		CheckBit:ToNullString(GetCheckBit(bankNo)),
+		BankNo:    ToNullString(bankNo),
+		BankIndex: ToNullString(GetBankIndex(bankNo)),
+		BankCode:  ToNullString(GetBankCode(bankNo)),
+		BankName:  ToNullString(GetBankName(line, bankNo)),
+		AreaCode:  ToNullString(GetAreaCode(bankNo)),
+		CheckBit:  ToNullString(GetCheckBit(bankNo)),
 	}
 }
 
@@ -24,13 +24,13 @@ func ToSuperBank(line string) *model.SuperBankModel {
 	bankNo := GetBankNo(line)
 	bankName := GetBankName(line, bankNo)
 	return &model.SuperBankModel{
-		BankNo:ToNullString(bankNo),
-		BankName:ToNullString(bankName),
-		BankCode:ToNullString(GetBankCode(bankNo)),
-		BankIndex:ToNullString(GetBankIndex(bankNo)),
-		BankNickname:ToNullString(bankName),
-		AreaCode:ToNullString(GetAreaCode(bankNo)),
-		CheckBit:ToNullString(GetCheckBit(bankNo)),
+		BankNo:       ToNullString(bankNo),
+		BankName:     ToNullString(bankName),
+		BankCode:     ToNullString(GetBankCode(bankNo)),
+		BankIndex:    ToNullString(GetBankIndex(bankNo)),
+		BankNickname: ToNullString(bankName),
+		AreaCode:     ToNullString(GetAreaCode(bankNo)),
+		CheckBit:     ToNullString(GetCheckBit(bankNo)),
 	}
 }
 
@@ -54,7 +54,7 @@ func extractContent(bankNo string, beginIndex int, endIndex int) string {
 	}
 	if endIndex < len(bankNo) {
 		return bankNo[beginIndex:endIndex]
-	}else {
+	} else {
 		return bankNo[beginIndex:]
 	}
 }
@@ -73,7 +73,7 @@ func GetCheckBit(bankNo string) string {
 
 func ToNullString(str string) sql.NullString {
 	if 0 == len(str) {
-		return sql.NullString{String:"", Valid:false}
+		return sql.NullString{String: "", Valid: false}
 	}
 	return sql.NullString{String: str, Valid: true}
 }

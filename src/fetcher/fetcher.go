@@ -1,11 +1,11 @@
 package fetcher
 
 import (
-	"net/http"
-	"os"
+	"base"
 	"fmt"
 	"io"
-	"base"
+	"net/http"
+	"os"
 	"path"
 )
 
@@ -19,7 +19,7 @@ var SuperBank = &BankInfo{"https://ebank.cgbchina.com.cn/corporbank/superEbankNo
 
 func Download(bankInfo *BankInfo) {
 	resp, err := http.Get(bankInfo.Url)
-	if nil != err{
+	if nil != err {
 		base.CheckErr(err)
 	}
 	if resp.StatusCode != 200 {
@@ -29,10 +29,10 @@ func Download(bankInfo *BankInfo) {
 	data := make([]byte, 1024)
 	err = os.MkdirAll(path.Dir(bankInfo.FileName), os.ModePerm)
 	base.CheckErr(err)
-	file , err := os.Create(bankInfo.FileName)
+	file, err := os.Create(bankInfo.FileName)
 	base.CheckErr(err)
 	defer file.Close()
-	for  {
+	for {
 		n, err := resp.Body.Read(data)
 		if nil != err {
 			if io.EOF == err {
