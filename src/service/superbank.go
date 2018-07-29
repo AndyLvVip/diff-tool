@@ -3,21 +3,21 @@ package service
 import (
 	"base"
 	"bufio"
+	"conf"
 	"dao"
 	"database/sql"
+	"fetcher"
 	"fmt"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 	"io"
+	"log"
 	"model"
 	"os"
 	"path"
 	"strings"
-	"time"
-	"log"
-	"fetcher"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"sync"
-	"conf"
+	"time"
 )
 
 func Process4SuperBank(now time.Time, wg *sync.WaitGroup) {
@@ -57,6 +57,7 @@ func LoadSuperBank(reader *bufio.Reader) {
 				if len(sbSlices) > 0 {
 					log.Printf("inserting super banks from %d to %d\n", last, cur)
 					dao.BatchInsert4SuperBank(sbSlices, db)
+					log.Printf("inserted super banks from %d to %d\n", last, cur)
 				}
 				break
 			}
@@ -64,9 +65,10 @@ func LoadSuperBank(reader *bufio.Reader) {
 
 		sbSlices = append(sbSlices, model.ToSuperBank(strings.TrimSpace(line)))
 		cur++
-		if len(sbSlices) == 10000 {
+		if len(sbSlices) >= 1000 {
 			log.Printf("inserting super banks from %d to %d\n", last, cur)
 			dao.BatchInsert4SuperBank(sbSlices, db)
+			log.Printf("inserted super banks from %d to %d\n", last, cur)
 			last = cur
 			sbSlices = sbSlices[:0]
 		}

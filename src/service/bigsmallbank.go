@@ -1,23 +1,24 @@
 package service
 
 import (
-	"bufio"
-	"database/sql"
 	"base"
+	"bufio"
+	"conf"
 	"dao"
-	"model"
-	"io"
-	"strings"
+	"database/sql"
+	"fetcher"
 	"fmt"
-	"time"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
+	"io"
+	"log"
+	"math"
+	"model"
 	"os"
 	"path"
-	"log"
-	"fetcher"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/encoding/simplifiedchinese"
+	"strings"
 	"sync"
-	"conf"
+	"time"
 )
 
 func ProcessBigSmallBank(now time.Time, wg *sync.WaitGroup) {
@@ -44,8 +45,7 @@ func LoadBigSmallBank(reader *bufio.Reader) {
 	dao.TruncateBigSmallBank(db)
 
 	var bsbSlices []*model.BigSmallBankModel
-	last := 0
-	cur := 0
+	now := time.Now()
 	for {
 		line, err := reader.ReadString('\n')
 		if nil != err {
@@ -54,28 +54,27 @@ func LoadBigSmallBank(reader *bufio.Reader) {
 			} else {
 				if len(line) > 0 {
 					bsbSlices = append(bsbSlices, model.ToBigSmallBank(strings.TrimSpace(line)))
-					cur++
-				}
-				if len(bsbSlices) > 0 {
-					log.Printf("inserting big small banks from %d to %d\n", last, cur)
-					dao.BatchInsert4BigSmallBank(bsbSlices, db)
 				}
 				break
 			}
 		}
-
 		bsbSlices = append(bsbSlices, model.ToBigSmallBank(strings.TrimSpace(line)))
-		cur++
-		if len(bsbSlices) == 10000 {
-			log.Printf("inserting big small banks from %d to %d\n", last, cur)
-			dao.BatchInsert4BigSmallBank(bsbSlices, db)
-			last = cur
-			bsbSlices = bsbSlices[:0]
+	}
+	log.Printf("loaded file time: %f\n", time.Now().Sub(now).Seconds())
+	count := int(math.Ceil(float64(1.0*len(bsbSlices)) / 10000))
+	wg := &sync.WaitGroup{}
+	wg.Add(count)
+	now = time.Now()
+	for i := 0; i < count; i++ {
+		if (i+1)*10000 < len(bsbSlices) {
+			go dao.BatchInsert4BigSmallBank(wg, bsbSlices[i*10000:(i+1)*10000], db)
+		} else {
+			go dao.BatchInsert4BigSmallBank(wg, bsbSlices[i*10000:], db)
 		}
 	}
+	wg.Wait()
+	log.Printf("inserted time: %f\n", time.Now().Sub(now).Seconds())
 }
-
-
 
 func QueryAndGenerate4BigSmallBank(now time.Time) {
 	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
@@ -89,7 +88,6 @@ func QueryAndGenerate4BigSmallBank(now time.Time) {
 
 	model.PayeeCheckSql4BigSmallBank(now, updated, deleted)
 }
-
 
 func GenerateDiffFileSql4BigSmallBank(now time.Time, added []*model.BigSmallBankModel, updated []*model.BigSmallBankModel, deleted []*model.BigSmallBankModel) {
 	filePathAndName := fmt.Sprintf("result/%s/patch/big_small_%s.sql", base.Format2yyyy_MM_dd(now), base.Format2yyyyMMddHHmmss(now))

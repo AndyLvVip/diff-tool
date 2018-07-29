@@ -1,20 +1,25 @@
 package dao
 
 import (
-	"model"
-	"database/sql"
 	"base"
+	"database/sql"
+	"log"
+	"model"
+	"sync"
+	"time"
 )
 
-func BatchInsert4BigSmallBank(bigSmallBanks []*model.BigSmallBankModel, db *sql.DB) {
+func BatchInsert4BigSmallBank(wg *sync.WaitGroup, bigSmallBanks []*model.BigSmallBankModel, db *sql.DB) {
+	defer wg.Done()
 	sql, values := buildSqlAndVals4BigSmallBank(bigSmallBanks)
 
 	stmtIns, err := db.Prepare(sql)
 	base.CheckErr(err)
 	defer stmtIns.Close()
-
+	now := time.Now()
 	_, err = stmtIns.Exec(values...)
 	base.CheckErr(err)
+	log.Printf("exec time: %f\n", time.Now().Sub(now).Seconds())
 }
 
 func buildSqlAndVals4BigSmallBank(bigSmallBanks []*model.BigSmallBankModel) (string, []interface{}) {
