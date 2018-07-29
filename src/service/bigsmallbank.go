@@ -13,7 +13,24 @@ import (
 	"os"
 	"path"
 	"log"
+	"fetcher"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"sync"
 )
+
+func ProcessBigSmallBank(now time.Time, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fetcher.Download(fetcher.BigSmallBank)
+
+	file, err := os.Open(fetcher.BigSmallBank.FileName)
+	defer file.Close()
+	base.CheckErr(err)
+	reader := bufio.NewReader(transform.NewReader(file, simplifiedchinese.GBK.NewDecoder()))
+	LoadBigSmallBank(reader)
+
+	QueryAndGenerate4BigSmallBank(now)
+}
 
 func LoadBigSmallBank(reader *bufio.Reader) {
 	db, err := sql.Open("mysql", "andy:password@/ucacc_dev")

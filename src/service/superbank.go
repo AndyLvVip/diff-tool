@@ -13,7 +13,22 @@ import (
 	"strings"
 	"time"
 	"log"
+	"fetcher"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"sync"
 )
+
+func Process4SuperBank(now time.Time, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fetcher.Download(fetcher.SuperBank)
+	file, err := os.Open(fetcher.SuperBank.FileName)
+	defer file.Close()
+	base.CheckErr(err)
+	reader := bufio.NewReader(transform.NewReader(file, simplifiedchinese.GBK.NewDecoder()))
+	LoadSuperBank(reader)
+	QueryAndGenerate4SuperBank(now)
+}
 
 func LoadSuperBank(reader *bufio.Reader) {
 	db, err := sql.Open("mysql", "andy:password@/ucacc_dev")
