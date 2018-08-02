@@ -20,18 +20,28 @@ import (
 	"time"
 )
 
-func Process4SuperBank(now time.Time, wg *sync.WaitGroup) {
+type SuperBankService struct {}
+
+var service = SuperBankService{}
+
+func NewSuperBankService() *SuperBankService {
+	return &service
+}
+
+func (service *SuperBankService) Process(now time.Time, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fetcher.Download(now, fetcher.SuperBank)
 	file, err := os.Open(fetcher.SuperBank.FilePathAndName(now))
 	defer file.Close()
 	base.CheckErr(err)
 	reader := bufio.NewReader(transform.NewReader(file, simplifiedchinese.GBK.NewDecoder()))
-	LoadSuperBank(reader)
-	QueryAndGenerate4SuperBank(now)
+	service.load(reader)
+	service.queryAndGenerate(now)
 }
 
-func LoadSuperBank(reader *bufio.Reader) {
+
+
+func (*SuperBankService) load(reader *bufio.Reader) {
 	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
 	base.CheckErr(err)
 	defer db.Close()
@@ -75,19 +85,19 @@ func LoadSuperBank(reader *bufio.Reader) {
 	}
 }
 
-func QueryAndGenerate4SuperBank(now time.Time) {
+func (service *SuperBankService) queryAndGenerate(now time.Time) {
 	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
 	base.CheckErr(err)
 	defer db.Close()
 	added := dao.FetchAddedSuperBank(db)
 	updated := dao.FetchUpdatedSuperBank(db)
 	deleted := dao.FetchDeletedSuperBank(db)
-	GenerateDiffFileSql4SuperBank(now, added, updated, deleted)
+	service.generateDiffFileSql(now, added, updated, deleted)
 
 	model.PayeeCheckSql4SuperBank(now, updated, deleted)
 }
 
-func GenerateDiffFileSql4SuperBank(now time.Time, added []*model.SuperBankModel, updated []*model.SuperBankModel, deleted []*model.SuperBankModel) {
+func (*SuperBankService) generateDiffFileSql(now time.Time, added []*model.SuperBankModel, updated []*model.SuperBankModel, deleted []*model.SuperBankModel) {
 	filePathAndName := fmt.Sprintf("result/%s/patch/super_%s.sql", base.Format2yyyy_MM_dd(now), base.Format2yyyyMMddHHmmss(now))
 	err := os.MkdirAll(path.Dir(filePathAndName), os.ModePerm)
 	base.CheckErr(err)

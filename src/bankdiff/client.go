@@ -14,7 +14,7 @@ func main() {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 	go service.ProcessBigSmallBank(now, wg)
-	go service.Process4SuperBank(now, wg)
+	go service.NewSuperBankService().Process(now, wg)
 	wg.Wait()
 	log.Printf("total time: %fs", time.Now().Sub(now).Seconds())
 
