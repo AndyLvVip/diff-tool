@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+type IBankModel interface {
+	AddedSqlScript() string
+	UpdatedSqlScript() string
+	DeletedSqlScript() string
+	GetBankNo() sql.NullString
+	InsertSqlValues() []interface{}
+}
+
 func ToBigSmallBank(line string) *BigSmallBankModel {
 	bankNo := GetBankNo(line)
 	return &BigSmallBankModel{

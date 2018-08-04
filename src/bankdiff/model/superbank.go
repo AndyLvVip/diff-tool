@@ -41,3 +41,13 @@ func (sb *SuperBankModel) DeletedSqlScript() string {
 		helper.SqlValue(sb.BankNo),
 	)
 }
+
+func (sb *SuperBankModel) GetBankNo() sql.NullString {
+	return sb.BankNo
+}
+
+func (sb *SuperBankModel) InsertSqlValues() []interface{} {
+	var result []interface{}
+	result = append(result, sb.BankNo, sb.BankName, sb.BankCode, sb.AreaCode, sb.BankIndex, sb.CheckBit, sb.BankNickname)
+	return result
+}

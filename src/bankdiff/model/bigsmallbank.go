@@ -39,3 +39,14 @@ func (bsb *BigSmallBankModel) DeletedSqlScript() string {
 		helper.SqlValue(bsb.BankNo),
 	)
 }
+
+
+func (bsb *BigSmallBankModel) GetBankNo() sql.NullString {
+	return bsb.BankNo
+}
+
+func (bsb *BigSmallBankModel) InsertSqlValues() []interface{} {
+	var result []interface{}
+	result = append(result, bsb.BankNo, bsb.BankName, bsb.BankCode, bsb.AreaCode, bsb.BankIndex, bsb.CheckBit)
+	return result
+}
