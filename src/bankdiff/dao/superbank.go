@@ -1,23 +1,32 @@
 package dao
 
 import (
-	"bankdiff/base"
+	"bankdiff/helper"
 	"bankdiff/model"
 	"database/sql"
 )
 
-func BatchInsert4SuperBank(superBanks []*model.SuperBankModel, db *sql.DB) {
-	sql, values := buildSqlAndVals4SuperBank(superBanks)
+type SuperBankDao struct {
+}
+
+var sb = SuperBankDao{}
+
+func NewSuperBank() *SuperBankDao {
+	return &sb
+}
+
+func (dao *SuperBankDao) BatchInsert(superBanks []*model.SuperBankModel, db *sql.DB) {
+	sql, values := dao.buildSqlAndVals(superBanks)
 
 	stmtIns, err := db.Prepare(sql)
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	defer stmtIns.Close()
 
 	_, err = stmtIns.Exec(values...)
-	base.CheckErr(err)
+	helper.CheckErr(err)
 }
 
-func buildSqlAndVals4SuperBank(superBanks []*model.SuperBankModel) (string, []interface{}) {
+func (*SuperBankDao) buildSqlAndVals(superBanks []*model.SuperBankModel) (string, []interface{}) {
 	sql := "insert into tmp_supercyberbank (bankNo, bankName, bankCode, areaCode, bankIndex, checkBit, bankNickname) values "
 	sqlVar := ""
 	var sqlValue []interface{}
@@ -29,45 +38,45 @@ func buildSqlAndVals4SuperBank(superBanks []*model.SuperBankModel) (string, []in
 	return sql[:len(sql)-2], sqlValue
 }
 
-func TruncateSuperBank(db *sql.DB) {
+func (*SuperBankDao) Truncate(db *sql.DB) {
 	_, err := db.Exec("truncate table tmp_supercyberbank")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 }
 
-func FetchAddedSuperBank(db *sql.DB) []*model.SuperBankModel {
+func (*SuperBankDao) FetchAddedList(db *sql.DB) []*model.SuperBankModel {
 	rows, err := db.Query("select new.bankNo, new.bankName, new.bankCode, new.areaCode, new.bankIndex, new.checkBit, new.bankNickname from tmp_supercyberbank new left join base_supercyberbank old on new.bankNo = old.bankNo where old.bankNo is null")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	var bsbSlices []*model.SuperBankModel
 	for rows.Next() {
 		sb := &model.SuperBankModel{}
 		err = rows.Scan(&sb.BankNo, &sb.BankName, &sb.BankCode, &sb.AreaCode, &sb.BankIndex, &sb.CheckBit, &sb.BankNickname)
-		base.CheckErr(err)
+		helper.CheckErr(err)
 		bsbSlices = append(bsbSlices, sb)
 	}
 	return bsbSlices
 }
 
-func FetchUpdatedSuperBank(db *sql.DB) []*model.SuperBankModel {
+func (*SuperBankDao) FetchUpdatedList(db *sql.DB) []*model.SuperBankModel {
 	rows, err := db.Query("select new.bankNo, new.bankName from base_supercyberbank old join tmp_supercyberbank new on old.bankNo = new.bankNo where old.bankName <> new.bankName")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	var bsbSlices []*model.SuperBankModel
 	for rows.Next() {
 		sb := &model.SuperBankModel{}
 		err = rows.Scan(&sb.BankNo, &sb.BankName)
-		base.CheckErr(err)
+		helper.CheckErr(err)
 		bsbSlices = append(bsbSlices, sb)
 	}
 	return bsbSlices
 }
 
-func FetchDeletedSuperBank(db *sql.DB) []*model.SuperBankModel {
+func (*SuperBankDao) FetchDeletedList(db *sql.DB) []*model.SuperBankModel {
 	rows, err := db.Query("select old.bankNo from base_supercyberbank old left join tmp_supercyberbank new on old.bankNo = new.bankNo where new.bankNo is null;")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	var bsbSlices []*model.SuperBankModel
 	for rows.Next() {
 		sb := &model.SuperBankModel{}
 		err = rows.Scan(&sb.BankNo)
-		base.CheckErr(err)
+		helper.CheckErr(err)
 		bsbSlices = append(bsbSlices, sb)
 	}
 	return bsbSlices

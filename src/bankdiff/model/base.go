@@ -1,7 +1,7 @@
 package model
 
 import (
-	"bankdiff/base"
+	"bankdiff/helper"
 	"database/sql"
 	"regexp"
 	"strings"
@@ -35,7 +35,7 @@ func ToSuperBank(line string) *SuperBankModel {
 
 func GetBankNo(line string) string {
 	reg, err := regexp.Compile("^\\d{1,12}")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	return reg.FindString(line)
 }
 

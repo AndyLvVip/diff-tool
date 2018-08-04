@@ -13,7 +13,7 @@ func main() {
 	now := time.Now()
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
-	go service.ProcessBigSmallBank(now, wg)
+	go service.NewBigSmallBankService().Process(now, wg)
 	go service.NewSuperBankService().Process(now, wg)
 	wg.Wait()
 	log.Printf("total time: %fs", time.Now().Sub(now).Seconds())

@@ -1,7 +1,7 @@
 package fetcher
 
 import (
-	"bankdiff/base"
+	"bankdiff/helper"
 	"fmt"
 	"io"
 	"log"
@@ -17,7 +17,7 @@ type BankInfo struct {
 }
 
 func (b *BankInfo) FilePathAndName(now time.Time) string {
-	return fmt.Sprintf("result/%s/%s", base.Format2yyyy_MM_dd(now), b.fileName)
+	return fmt.Sprintf("result/%s/%s", helper.Format2yyyy_MM_dd(now), b.fileName)
 }
 
 var BigSmallBank = &BankInfo{"https://ebank.cgbchina.com.cn/corporbank/superEbankNoDownload.jsp?pms=true", "BigSmallBank.txt"}
@@ -27,17 +27,17 @@ func Download(now time.Time, bankInfo *BankInfo) {
 	log.Printf("downloading the file: %s\n", bankInfo.FilePathAndName(now))
 	resp, err := http.Get(bankInfo.Url)
 	if nil != err {
-		base.CheckErr(err)
+		helper.CheckErr(err)
 	}
 	if resp.StatusCode != 200 {
-		base.CheckErr(fmt.Errorf("response status is: %d", resp.StatusCode))
+		helper.CheckErr(fmt.Errorf("response status is: %d", resp.StatusCode))
 	}
 
 	data := make([]byte, 1024)
 	err = os.MkdirAll(path.Dir(bankInfo.FilePathAndName(now)), os.ModePerm)
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	file, err := os.Create(bankInfo.FilePathAndName(now))
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	defer file.Close()
 	for {
 		n, err := resp.Body.Read(data)
@@ -48,7 +48,7 @@ func Download(now time.Time, bankInfo *BankInfo) {
 				}
 				break
 			}
-			base.CheckErr(err)
+			helper.CheckErr(err)
 		}
 
 		file.Write(data[:n])

@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"bankdiff/base"
+	"bankdiff/helper"
 	"bankdiff/model"
 	"database/sql"
 	"log"
@@ -9,20 +9,29 @@ import (
 	"time"
 )
 
-func BatchInsert4BigSmallBank(wg *sync.WaitGroup, bigSmallBanks []*model.BigSmallBankModel, db *sql.DB) {
+type BigSmallBankDao struct {
+}
+
+var bsb = BigSmallBankDao{}
+
+func NewBigSmallBankDao() *BigSmallBankDao {
+	return &bsb
+}
+
+func (dao *BigSmallBankDao) BatchInsert(wg *sync.WaitGroup, bigSmallBanks []*model.BigSmallBankModel, db *sql.DB) {
 	defer wg.Done()
-	sql, values := buildSqlAndVals4BigSmallBank(bigSmallBanks)
+	sql, values := dao.buildSqlAndVals(bigSmallBanks)
 
 	stmtIns, err := db.Prepare(sql)
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	defer stmtIns.Close()
 	now := time.Now()
 	_, err = stmtIns.Exec(values...)
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	log.Printf("exec time: %f\n", time.Now().Sub(now).Seconds())
 }
 
-func buildSqlAndVals4BigSmallBank(bigSmallBanks []*model.BigSmallBankModel) (string, []interface{}) {
+func (*BigSmallBankDao) buildSqlAndVals(bigSmallBanks []*model.BigSmallBankModel) (string, []interface{}) {
 	sql := "insert into tmp_branchbank (bankNo, bankName, bankCode, areaCode, bankIndex, checkBit) values "
 	sqlVar := ""
 	var sqlValue []interface{}
@@ -34,45 +43,45 @@ func buildSqlAndVals4BigSmallBank(bigSmallBanks []*model.BigSmallBankModel) (str
 	return sql[:len(sql)-2], sqlValue
 }
 
-func TruncateBigSmallBank(db *sql.DB) {
+func (*BigSmallBankDao) Truncate(db *sql.DB) {
 	_, err := db.Exec("truncate table tmp_branchbank")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 }
 
-func FetchAddedBigSmallBank(db *sql.DB) []*model.BigSmallBankModel {
+func (*BigSmallBankDao) FetchAddedList(db *sql.DB) []*model.BigSmallBankModel {
 	rows, err := db.Query("select new.bankNo, new.bankName, new.bankCode, new.areaCode, new.bankIndex, new.checkBit from tmp_branchbank new left join base_branchbank old on new.bankNo = old.bankNo where old.bankNo is null")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	var bsbSlices []*model.BigSmallBankModel
 	for rows.Next() {
 		bsb := &model.BigSmallBankModel{}
 		err = rows.Scan(&bsb.BankNo, &bsb.BankName, &bsb.BankCode, &bsb.AreaCode, &bsb.BankIndex, &bsb.CheckBit)
-		base.CheckErr(err)
+		helper.CheckErr(err)
 		bsbSlices = append(bsbSlices, bsb)
 	}
 	return bsbSlices
 }
 
-func FetchUpdatedBigSmallBank(db *sql.DB) []*model.BigSmallBankModel {
+func (*BigSmallBankDao) FetchUpdatedList(db *sql.DB) []*model.BigSmallBankModel {
 	rows, err := db.Query("select new.bankNo, new.bankName from base_branchbank old join tmp_branchbank new on old.bankNo = new.bankNo where old.bankName <> new.bankName")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	var bsbSlices []*model.BigSmallBankModel
 	for rows.Next() {
 		bsb := &model.BigSmallBankModel{}
 		err = rows.Scan(&bsb.BankNo, &bsb.BankName)
-		base.CheckErr(err)
+		helper.CheckErr(err)
 		bsbSlices = append(bsbSlices, bsb)
 	}
 	return bsbSlices
 }
 
-func FetchDeletedBigSmallBank(db *sql.DB) []*model.BigSmallBankModel {
+func (*BigSmallBankDao) FetchDeletedList(db *sql.DB) []*model.BigSmallBankModel {
 	rows, err := db.Query("select old.bankNo from base_branchbank old left join tmp_branchbank new on old.bankNo = new.bankNo where new.bankNo is null;")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	var bsbSlices []*model.BigSmallBankModel
 	for rows.Next() {
 		bsb := &model.BigSmallBankModel{}
 		err = rows.Scan(&bsb.BankNo)
-		base.CheckErr(err)
+		helper.CheckErr(err)
 		bsbSlices = append(bsbSlices, bsb)
 	}
 	return bsbSlices

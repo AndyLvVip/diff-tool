@@ -1,8 +1,9 @@
-package base
+package helper
 
 import (
 	"database/sql"
 	"fmt"
+	"io"
 	"time"
 )
 
@@ -29,4 +30,20 @@ func Format2yyyyMMddHHmmss(datetime time.Time) string {
 
 func Format2yyyy_MM_dd(now time.Time) string {
 	return now.Format("2006-01-02")
+}
+
+type WriteHelper struct {
+	W   io.Writer
+	err error
+}
+
+func (w *WriteHelper) WriteString(s string) {
+	if nil != w.err {
+		return
+	}
+	_, w.err = w.W.Write([]byte(s))
+}
+
+func (w *WriteHelper) Err() error {
+	return w.err
 }

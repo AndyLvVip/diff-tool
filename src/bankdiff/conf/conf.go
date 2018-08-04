@@ -1,7 +1,7 @@
 package conf
 
 import (
-	"bankdiff/base"
+	"bankdiff/helper"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -18,11 +18,11 @@ var Conf = &Configuration{}
 
 func readConfigurationFile() {
 	file, err := os.Open("config/config.json")
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(Conf)
-	base.CheckErr(err)
+	helper.CheckErr(err)
 	log.Printf("DataSource Configuration: %v\n", Conf.DataSource)
 }
 
