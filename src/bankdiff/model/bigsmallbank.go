@@ -40,7 +40,6 @@ func (bsb *BigSmallBankModel) DeletedSqlScript() string {
 	)
 }
 
-
 func (bsb *BigSmallBankModel) GetBankNo() sql.NullString {
 	return bsb.BankNo
 }
