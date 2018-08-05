@@ -19,7 +19,7 @@ func (*BigSmallBankDao) InsertStatement() string {
 }
 
 func (*BigSmallBankDao) InsertPlaceHolder() string {
-	return "(?, ?, ?, ?, ?, ?), "
+	return "(?, ?, ?, ?, ?, ?)"
 }
 
 func (*BigSmallBankDao) FetchAddedListQueryStatement() string {

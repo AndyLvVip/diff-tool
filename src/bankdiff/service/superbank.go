@@ -5,7 +5,6 @@ import (
 	"bankdiff/fetcher"
 	"bankdiff/helper"
 	"bankdiff/model"
-	"database/sql"
 	"fmt"
 	"sync"
 	"time"
@@ -27,28 +26,28 @@ func (*SuperBankService) FilePathAndName(now time.Time) string {
 	return fetcher.SuperBank.FilePathAndName(now)
 }
 
-func (*SuperBankService) Truncate(db *sql.DB) {
-	dao.NewBaseBankDao().Truncate(db, dao.NewSuperBank())
+func (*SuperBankService) Truncate() {
+	dao.NewBaseBankDao().Truncate(dao.NewSuperBank())
 }
 
 func (*SuperBankService) ToModel(line string) model.IBankModel {
 	return model.ToSuperBank(line)
 }
 
-func (*SuperBankService) BatchInsert(wg *sync.WaitGroup, bsbSlices []model.IBankModel, db *sql.DB) {
-	dao.NewBaseBankDao().BatchInsert(wg, bsbSlices, db, dao.NewSuperBank())
+func (*SuperBankService) BatchInsert(wg *sync.WaitGroup, bsbSlices []model.IBankModel) {
+	dao.NewBaseBankDao().BatchInsert(wg, bsbSlices, dao.NewSuperBank())
 }
 
-func (*SuperBankService) FetchAddedList(db *sql.DB) []model.IBankModel {
-	return dao.NewBaseBankDao().FetchAddedList(db, dao.NewSuperBank())
+func (*SuperBankService) FetchAddedList() []model.IBankModel {
+	return dao.NewBaseBankDao().FetchAddedList(dao.NewSuperBank())
 }
 
-func (*SuperBankService) FetchUpdatedList(db *sql.DB) []model.IBankModel {
-	return dao.NewBaseBankDao().FetchUpdatedList(db, dao.NewSuperBank())
+func (*SuperBankService) FetchUpdatedList() []model.IBankModel {
+	return dao.NewBaseBankDao().FetchUpdatedList(dao.NewSuperBank())
 }
 
-func (*SuperBankService) FetchDeletedList(db *sql.DB) []model.IBankModel {
-	return dao.NewBaseBankDao().FetchDeletedList(db, dao.NewSuperBank())
+func (*SuperBankService) FetchDeletedList() []model.IBankModel {
+	return dao.NewBaseBankDao().FetchDeletedList(dao.NewSuperBank())
 }
 
 func (*SuperBankService) PatchScriptFilePathAndName(now time.Time) string {

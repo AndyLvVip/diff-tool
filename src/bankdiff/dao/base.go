@@ -1,12 +1,13 @@
 package dao
 
 import (
-	"sync"
+	"bankdiff/conf"
+	"bankdiff/helper"
 	"bankdiff/model"
 	"database/sql"
-	"bankdiff/helper"
-	"time"
 	"log"
+	"sync"
+	"time"
 )
 
 type IBankDao interface {
@@ -17,11 +18,9 @@ type IBankDao interface {
 	FetchUpdatedListQueryStatement() string
 	FetchDeletedListQueryStatement() string
 	ScanFrom(rows *sql.Rows) (model.IBankModel, error)
-
 }
 
 type BaseBankDao struct {
-
 }
 
 var dao = BaseBankDao{}
@@ -30,11 +29,11 @@ func NewBaseBankDao() *BaseBankDao {
 	return &dao
 }
 
-func (*BaseBankDao) BatchInsert(wg *sync.WaitGroup, bsbSlices []model.IBankModel, db *sql.DB, ibd IBankDao) {
+func (*BaseBankDao) BatchInsert(wg *sync.WaitGroup, bsbSlices []model.IBankModel, ibd IBankDao) {
 	defer wg.Done()
 	sql, values := dao.buildSqlAndVals(bsbSlices, ibd)
 
-	stmtIns, err := db.Prepare(sql)
+	stmtIns, err := conf.Db.Prepare(sql)
 	helper.CheckErr(err)
 	defer stmtIns.Close()
 	now := time.Now()
@@ -43,22 +42,20 @@ func (*BaseBankDao) BatchInsert(wg *sync.WaitGroup, bsbSlices []model.IBankModel
 	log.Printf("exec time: %f\n", time.Now().Sub(now).Seconds())
 }
 
-
 func (*BaseBankDao) buildSqlAndVals(bigSmallBanks []model.IBankModel, ibd IBankDao) (string, []interface{}) {
 	sql := ibd.InsertStatement() + " values "
 	sqlVar := ""
 	var sqlValue []interface{}
 	for i := 0; i < len(bigSmallBanks); i++ {
-		sqlVar += ibd.InsertPlaceHolder()
+		sqlVar += ibd.InsertPlaceHolder() + ", "
 		sqlValue = append(sqlValue, bigSmallBanks[i].InsertSqlValues()...)
 	}
 	sql += sqlVar
 	return sql[:len(sql)-2], sqlValue
 }
 
-
-func (*BaseBankDao) FetchAddedList(db *sql.DB, ibd IBankDao) []model.IBankModel {
-	rows, err := db.Query(ibd.FetchAddedListQueryStatement())
+func (*BaseBankDao) FetchAddedList(ibd IBankDao) []model.IBankModel {
+	rows, err := conf.Db.Query(ibd.FetchAddedListQueryStatement())
 	helper.CheckErr(err)
 	var bsbSlices []model.IBankModel
 	for rows.Next() {
@@ -69,8 +66,8 @@ func (*BaseBankDao) FetchAddedList(db *sql.DB, ibd IBankDao) []model.IBankModel 
 	return bsbSlices
 }
 
-func (*BaseBankDao) FetchUpdatedList(db *sql.DB, ibd IBankDao) []model.IBankModel {
-	rows, err := db.Query(ibd.FetchUpdatedListQueryStatement())
+func (*BaseBankDao) FetchUpdatedList(ibd IBankDao) []model.IBankModel {
+	rows, err := conf.Db.Query(ibd.FetchUpdatedListQueryStatement())
 	helper.CheckErr(err)
 	var bsbSlices []model.IBankModel
 	for rows.Next() {
@@ -81,8 +78,8 @@ func (*BaseBankDao) FetchUpdatedList(db *sql.DB, ibd IBankDao) []model.IBankMode
 	return bsbSlices
 }
 
-func (*BaseBankDao) FetchDeletedList(db *sql.DB, ibd IBankDao) []model.IBankModel {
-	rows, err := db.Query(ibd.FetchDeletedListQueryStatement())
+func (*BaseBankDao) FetchDeletedList(ibd IBankDao) []model.IBankModel {
+	rows, err := conf.Db.Query(ibd.FetchDeletedListQueryStatement())
 	helper.CheckErr(err)
 	var bsbSlices []model.IBankModel
 	for rows.Next() {
@@ -93,7 +90,7 @@ func (*BaseBankDao) FetchDeletedList(db *sql.DB, ibd IBankDao) []model.IBankMode
 	return bsbSlices
 }
 
-func (*BaseBankDao) Truncate(db *sql.DB, ibd IBankDao) {
-	_, err := db.Exec(ibd.TruncateStatement())
+func (*BaseBankDao) Truncate(ibd IBankDao) {
+	_, err := conf.Db.Exec(ibd.TruncateStatement())
 	helper.CheckErr(err)
 }

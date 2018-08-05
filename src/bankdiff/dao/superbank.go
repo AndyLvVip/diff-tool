@@ -19,7 +19,7 @@ func (*SuperBankDao) InsertStatement() string {
 }
 
 func (*SuperBankDao) InsertPlaceHolder() string {
-	return "(?, ?, ?, ?, ?, ?, ?), "
+	return "(?, ?, ?, ?, ?, ?, ?)"
 }
 
 func (*SuperBankDao) FetchAddedListQueryStatement() string {

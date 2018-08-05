@@ -1,33 +1,33 @@
 package service
 
 import (
-	"time"
-	"sync"
-	"os"
-	"bankdiff/helper"
-	"bufio"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"database/sql"
 	"bankdiff/conf"
+	"bankdiff/helper"
 	"bankdiff/model"
+	"bufio"
+	"database/sql"
+	"fmt"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 	"io"
-	"strings"
 	"log"
 	"math"
-	"fmt"
+	"os"
 	"path"
+	"strings"
+	"sync"
+	"time"
 )
 
 type IBankService interface {
 	Download(time time.Time)
 	FilePathAndName(time time.Time) string
-	Truncate(db *sql.DB)
+	Truncate()
 	ToModel(string) model.IBankModel
-	BatchInsert(*sync.WaitGroup, []model.IBankModel, *sql.DB)
-	FetchAddedList(*sql.DB) []model.IBankModel
-	FetchUpdatedList(*sql.DB) []model.IBankModel
-	FetchDeletedList(*sql.DB) []model.IBankModel
+	BatchInsert(*sync.WaitGroup, []model.IBankModel)
+	FetchAddedList() []model.IBankModel
+	FetchUpdatedList() []model.IBankModel
+	FetchDeletedList() []model.IBankModel
 	PatchScriptFilePathAndName(time time.Time) string
 	CheckScriptFilePathAndName(time time.Time) string
 	CanBeWithdrawalsBank() bool
@@ -37,7 +37,6 @@ type IBankService interface {
 }
 
 type BaseBankService struct {
-
 }
 
 var bbs = BaseBankService{}
@@ -59,16 +58,11 @@ func (service *BaseBankService) Process(now time.Time, wg *sync.WaitGroup, ibs I
 	service.generatePatchAndCheckScript(now, ibs)
 }
 
-
 func (*BaseBankService) dump2Db(reader *bufio.Reader, ibs IBankService) {
-	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
-	helper.CheckErr(err)
-	defer db.Close()
-
-	_, err = reader.ReadString('\n') //discard the first line
+	_, err := reader.ReadString('\n') //discard the first line
 	helper.CheckErr(err)
 
-	ibs.Truncate(db)
+	ibs.Truncate()
 
 	var models []model.IBankModel
 	now := time.Now()
@@ -93,9 +87,9 @@ func (*BaseBankService) dump2Db(reader *bufio.Reader, ibs IBankService) {
 	now = time.Now()
 	for i := 0; i < count; i++ {
 		if (i+1)*10000 < len(models) {
-			go ibs.BatchInsert(wg, models[i*10000:(i+1)*10000], db)
+			go ibs.BatchInsert(wg, models[i*10000:(i+1)*10000])
 		} else {
-			go ibs.BatchInsert(wg, models[i*10000:], db)
+			go ibs.BatchInsert(wg, models[i*10000:])
 		}
 	}
 	wg.Wait()
@@ -106,9 +100,9 @@ func (service *BaseBankService) generatePatchAndCheckScript(now time.Time, ibs I
 	db, err := sql.Open("mysql", conf.Conf.DataSource.Name())
 	helper.CheckErr(err)
 	defer db.Close()
-	added := ibs.FetchAddedList(db)
-	updated := ibs.FetchUpdatedList(db)
-	deleted := ibs.FetchDeletedList(db)
+	added := ibs.FetchAddedList()
+	updated := ibs.FetchUpdatedList()
+	deleted := ibs.FetchDeletedList()
 
 	service.generatePatchScript(now, added, updated, deleted, ibs)
 
@@ -162,7 +156,7 @@ func (service *BaseBankService) generateCheckScript(now time.Time, updated []mod
 	file, err := os.Create(ibs.CheckScriptFilePathAndName(now))
 	helper.CheckErr(err)
 	defer file.Close()
-	wh := &helper.WriteHelper{W:file}
+	wh := &helper.WriteHelper{W: file}
 	if len(updated) > 0 {
 		wh.WriteString("-- ----------------------------------------------------------\n")
 		wh.WriteString("-- 普通到账（大小额支行联行号）\n")
